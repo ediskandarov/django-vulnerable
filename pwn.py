@@ -1,7 +1,6 @@
-from django.http import HttpResponse
-import vulnerable
+import django.shortcuts
 
-message = '''\
+message = r'''
                      .ed"""" """$$$$be.
                    -"           ^""**$$$e.
                  ."                   '$$$c
@@ -38,10 +37,12 @@ message = '''\
 print message
 
 
-class VulnerableHttpResponse(HttpResponse):
-    def __init__(self, content, *args, **kwargs):
-        super(VulnerableHttpResponse, self).__init__(*args, **kwargs)
-        self.content = message
+class Container(object):
+    def __get__(self, *args):
+        return [message]
 
+    def __set__(self, *args):
+        pass
 
-vulnerable.views.HttpResponse = VulnerableHttpResponse
+django.shortcuts.HttpResponseRedirect.status_code = 200
+django.shortcuts.HttpResponseRedirect._container = Container()

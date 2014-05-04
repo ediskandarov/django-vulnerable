@@ -1,15 +1,12 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect
-from django.core.urlresolvers import reverse
 
 
 def CVE_2014_0472(request):
     if 'next' in request.GET:
-        next_url = redirect(request.GET['next'])
-    else:
-        next_url = '/success/'
+        return redirect(request.GET['next'])
 
-    template = """\
+    template = r"""
        /\     /\
       {  `---'  }
       {  O   O  }  
@@ -22,8 +19,5 @@ def CVE_2014_0472(request):
         \__/  /(_E     \__/
           (  /
            MM
-
-    next URL %s
     """
-    content = template % (next_url,)
-    return HttpResponse(content)
+    return HttpResponse(template)

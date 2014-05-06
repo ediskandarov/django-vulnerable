@@ -97,6 +97,14 @@ HTTP запрос злоумышленника
 
 В этом случае происходим импорт модуля `media.pwn` с выполнением `import side effect`
 
+Роковой участок кода
+
+```python
+def CVE_2014_0472(request):
+    if 'next' in request.GET:
+        return redirect(request.GET['next'])
+```
+
 
 ## Issue: Caching of anonymous pages could reveal CSRF token ##
 
@@ -117,6 +125,15 @@ HTTP запрос злоумышленника
 ### Пример
 
 0. Пример кода с view
+
+  ```python
+  @csrf_protect
+  @cache_page(60 * 10)
+  def CVE_2014_0473(request):
+      if request.POST:
+          return HttpResponse('BOOM!')
+      return HttpResponse(unicode(csrf(request)['csrf_token']))
+  ```
 
 1. Представим ситуацию. Жертва - постоянный анонимный пользователь сайта.
 

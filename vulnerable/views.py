@@ -30,7 +30,7 @@ def CVE_2014_0472(request):
 
 
 @csrf_protect
-@cache_page
+@cache_page(60 * 10)
 def CVE_2014_0473(request):
     if request.POST:
         return HttpResponse('BOOM!')

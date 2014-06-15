@@ -250,3 +250,11 @@ X-Frame-Options: SAMEORIGIN
 Content-Type: text/html; charset=utf-8
 Location: https:%5Ci-eat-your-skin.com/
 ```
+
+## Security advisory: strip_tags safety
+
+```
+$ curl localhost:8000/xss/
+<!DOCTYPE html>
+<script>alert()</script>&h
+```

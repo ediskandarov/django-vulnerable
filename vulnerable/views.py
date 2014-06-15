@@ -1,6 +1,6 @@
 from django.core.context_processors import csrf
 from django.http import HttpResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, render_to_response
 from django.views.generic import CreateView
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.cache import cache_page
@@ -40,3 +40,10 @@ def CVE_2014_0473(request):
 class UploadView(CreateView):
     model = Upload
     success_url = '/'
+
+
+def xss(request):
+    context = {'html': ('<script>'
+                        'alert("all your base are belong to us")'
+                        '</script>&h')}
+    return render_to_response('vulnerable/xss.html', context)

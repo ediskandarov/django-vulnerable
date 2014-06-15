@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<script src="token.js"></script>
+<script>
+  var xmlhttp = new XMLHttpRequest();
+  xmlhttp.open('POST', 'http://localhost:8000/boom/', false);
+  xmlhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+  xmlhttp.send('csrfmiddlewaretoken=' + encodeURIComponent(window.token));
+  if(xmlhttp.status == 200) {
+    alert(xmlhttp.responseText);
+  }
+</script>
